@@ -51,12 +51,13 @@ def softmax(z):
     return a
 
 def forward_propagation(w, x):
-    return ReLU(np.dot(x, w))
+    a1 = ReLU(np.dot(x, w))
+    return softmax(np.dot(a1, w))
 
 def backward_propagation(x, y, output):
-    error = y - output
-    delta = error * ReLU_prime(output)
-    adjustment = np.dot(x.T, delta)
+    err = y - output
+    d = err * ReLU_prime(output)
+    adjustment = np.dot(x.T, d)
     return adjustment
 
 def update_parameters(w, adjustment):
