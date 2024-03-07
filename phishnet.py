@@ -1,9 +1,6 @@
 import numpy as np
 import pandas as pd
 
-epochs = 1000
-feature_count = 17
-
 # example dataset: https://www.kaggle.com/datasets/taruntiwarihp/phishing-site-urls
 dataset = pd.read_csv("phishing_site_urls.csv")
 
@@ -50,31 +47,40 @@ def softmax(z):
     a = np.exp(z) / np.sum(np.exp(z), 0)
     return a
 
-def forward_propagation(w, x):
-    a1 = ReLU(np.dot(x, w))
-    return softmax(np.dot(a1, w))
+def forward_propagation(w, b, x):
+    z = w.dot(x) + b
+    a = ReLU(z)
+    return z, a
 
-def backward_propagation(x, y, output):
-    err = y - output
-    d = err * ReLU_prime(output)
-    adjustment = np.dot(x.T, d)
-    return adjustment
+def one_hot(y):
+    hot_y = np.zeros((y.size, y.max() + 1))
+    hot_y[np.arange(y.size), y] = 1
+    hot_y = hot_y.T
+    return hot_y
 
-def update_parameters(w, adjustment):
-    w += adjustment
+def backward_propagation(z, a, x, y):
+    dz = a - y
+    dw = (1/y.size) * dz.dot(a.T)
+    db = (1/y.size) * np.sum(dz, 2)
+    return dw, db
 
-# initialize a random weight
-w = np.random.random(1, feature_count) 
+def update_parameters(w, b, dw, db, alpha):
+    w = w - alpha * dw
+    b = b - alpha * db
+    return w, b
 
 # train neural network
-for epoch in range(epochs):
-    output = forward_propagation(w, x)
-    adjustment = backward_propagation(x, y, output)
-    update_parameters(w, adjustment)
-    # log progress
-    if epoch % 10 == 0:
-        accuracy = np.mean((output > 0.5) == y)
-        print(f"Iteration: {epoch}")
-        print(output.flatten())
-        print(y.flatten())
-        print(accuracy)
+def gradient_descent(x, y, epochs, alpha):
+    # initialize weight & bias with a random number
+    w = np.random.rand(1, feature_count=17)
+    b = np.random.rand(0, 1)
+    for epoch in range(epochs):
+        z, a = forward_propagation(w, b, x)
+        dw, db = backward_propagation(z, a, x, y)
+        w, b = update_parameters(w, b, dw, db, alpha)
+        # log progress
+        if epoch % 10 == 0:
+            print(f"Iteration: {epoch}")
+            print(f"Accuracy: {np.sum(np.argmax(a, 0)==0)/y.size}")
+
+gradient_descent(x, y, epochs=1000, alpha=1)

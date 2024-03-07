@@ -33,7 +33,9 @@ scales all values to be between 0 to 1
 -----backwards propagation-----
 
 opposite way, start with prediction then
-determine how much the result has deviated from it
+determine how much the result has deviated from it.
+one-hot encoding ensures that model does not assume 
+that higher numbers are more important.
 
 # how much we were off
 dz = error of the layer
