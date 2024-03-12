@@ -48,6 +48,13 @@ def update_params(w1, b1, w2, b2, dw1, db1, dw2, db2, alpha):
     b2 -= alpha * db2
     return w1, b1, w2, b2
 
+def get_predictions(a2):
+    return np.argmax(a2, 0)
+
+def get_accuracy(predictions, y):
+    print(predictions, y)
+    return np.sum(predictions == y) / y.size
+
 # train model using gradient descent
 def gradient_descent(x, y, epochs, alpha):
     np.random.seed(42)
@@ -64,8 +71,8 @@ def gradient_descent(x, y, epochs, alpha):
         w1, b1, w2, b2 = update_params(w1, b1, w2, b2, dw1, db1, dw2, db2, alpha)
         # log every 10 results
         if epoch % 10 == 0:
-            loss = np.mean(-np.sum(one_hot(y) * np.log(a2), axis=1))
-            print(f"Epoch {epoch}, Loss: {loss:.4f}")
+            print(f"Iteration: {epoch}")
+            print(f"Accuracy: {get_accuracy(get_predictions(a2), y)}")
     return w1, b1, w2, b2
 
 dataset = pd.read_csv("phishing_site_urls.csv")
@@ -73,20 +80,33 @@ np.random.shuffle(dataset)
 
 features = ['-', 'confirm', 'account', 'signin', 'update', 'logon', 
             'cmd', 'admin', '.', '!', '&', ',', '#', '$', '%', '@']
+
 # extract features from URL
 def extract_features(url):
     feature_count = [url.count(feature) for feature in features]
     return np.array(feature_count)
-
-# Extract features and labels
-x = np.array([extract_features(url) for url in dataset['URL']])
+x = np.array(extract_features(url) for url in dataset['URL'])
 y = np.array(dataset['Label'])
 
-# Split dataset into train and test sets
+# split dataset into train and test sets
 split_ratio = 0.8
 split_index = int(len(dataset) * split_ratio)
-
 x_train, x_test = x[:split_index], x[split_index:]
 y_train, y_test = y[:split_index], y[split_index:]
 
-gradient_descent(x_train, y_train, epochs=1000, alpha=0.01)
+# begin training
+w1, b1, w2, b2 = gradient_descent(x_train, y_train, epochs=1000, alpha=0.01)
+
+def make_predictions(x, w1, b1, w2, b2):
+    a2 = forward_prop(w1, b1, w2, b2, x)
+    predictions = get_predictions(a2)
+    return predictions
+
+def test_prediction(index, w1, b1, w2, b2):
+    current_image = x_train[:, index, None]
+    prediction = make_predictions(x_train[:, index, None], w1, b1, w2, b2)
+    label = y_train[index]
+    print("Prediction: ", prediction)
+    print("Label: ", label)
+
+test_prediction(0, w1, b1, w2, b2)
