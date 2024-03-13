@@ -10,15 +10,15 @@ w = weight (dotproduct between a[0] to matrix)
 b = bias (constant)
 g = activation function
 
-# start at the input layer
+start at the input layer
 a = x
-# calculate unactivated first layer 
+calculate unactivated first layer 
 z1 = w1 * a + b1
-# apply activation to layer
+apply activation to layer
 a1 = g(z1)
-# calculate unactivated second layer
+calculate unactivated second layer
 z2 = w2 * a1 + b2
-# apply softmax to layer
+apply softmax to layer
 a2 = softmax(z2)
 
 activation function: makes the model non-linear and introduces 
@@ -36,11 +36,11 @@ determine how much the result has deviated from it.
 one-hot encoding ensures that model does not assume 
 that higher numbers are more important.
 
-# how much we were off
+how much we were off
 dz = error of the layer
-# how much of the error is from the weights
+how much of the error is from the weights
 dw = derivative of the loss function with respect with to the weight
-# how much of the error is from the biases
+how much of the error is from the biases
 db = average of the absolute error
 y = label
 g' = undo actiation function
